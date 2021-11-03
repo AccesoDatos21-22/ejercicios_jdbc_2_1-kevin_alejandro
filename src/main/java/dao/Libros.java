@@ -1,19 +1,16 @@
-package org.iesinfantaelena.dao;
+package dao;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.iesinfantaelena.modelo.AccesoDatosException;
-import org.iesinfantaelena.modelo.Libro;
-import org.iesinfantaelena.utils.Utilidades;
-
+import modelo.AccesoDatosException;
+import modelo.Libro;
+import utils.Utilidades;
 
 /**
  * @descrition
@@ -27,7 +24,6 @@ public class Libros {
 
 	// Consultas a realizar en BD
 
-
 	private Connection con;
 	private Statement stmt;
 	private ResultSet rs;
@@ -38,7 +34,7 @@ public class Libros {
 	 * 
 	 * @throws AccesoDatosException
 	 */
-	
+
 	public Libros() throws AccesoDatosException {
 		try {
 			// Obtenemos la conexión
@@ -50,32 +46,28 @@ public class Libros {
 			// Error al leer propiedades
 			// En una aplicación real, escribo en el log y delego
 			System.err.println(e.getMessage());
-			throw new AccesoDatosException(
-					"Ocurrió un error al acceder a los datos");
+			throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
 		} catch (SQLException sqle) {
 			// En una aplicación real, escribo en el log y delego
 			// System.err.println(sqle.getMessage());
 			Utilidades.printSQLException(sqle);
-			throw new AccesoDatosException(
-					"Ocurrió un error al acceder a los datos");
+			throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
 		}
 	}
 
-	
 	/**
 	 * Método para cerrar la conexión
 	 * 
 	 * @throws AccesoDatosException
 	 */
 	public void cerrar() {
-					
-			if (con != null) {
-				Utilidades.closeConnection(con);
-			}
-		
+
+		if (con != null) {
+			Utilidades.closeConnection(con);
+		}
+
 	}
 
-	
 	/**
 	 * Método para liberar recursos
 	 * 
@@ -84,7 +76,8 @@ public class Libros {
 	private void liberar() {
 		try {
 			// Liberamos todos los recursos pase lo que pase
-			//Al cerrar un stmt se cierran los resultset asociados. Podíamos omitir el primer if. Lo dejamos por claridad.
+			// Al cerrar un stmt se cierran los resultset asociados. Podíamos omitir el
+			// primer if. Lo dejamos por claridad.
 			if (rs != null) {
 				rs.close();
 			}
@@ -93,7 +86,7 @@ public class Libros {
 			}
 			if (pstmt != null) {
 				pstmt.close();
-			}			
+			}
 		} catch (SQLException sqle) {
 			// En una aplicación real, escribo en el log, no delego porque
 			// es error al liberar recursos
@@ -107,69 +100,65 @@ public class Libros {
 	 * @param con
 	 * @throws SQLException
 	 */
-	
+
 	public List<Libro> verCatalogo() throws AccesoDatosException {
-	
+
 		return null;
 
 	}
 
-    /**
-     * Actualiza el numero de copias para un libro
-     * @param isbn
-     * @param copias
-     * @throws AccesoDatosException
-     */
-	
+	/**
+	 * Actualiza el numero de copias para un libro
+	 * 
+	 * @param isbn
+	 * @param copias
+	 * @throws AccesoDatosException
+	 */
+
 	public void actualizarCopias(Libro libro) throws AccesoDatosException {
-		
+
 	}
 
-	
-    /**
-     * Añade un nuevo libro a la BD
-     * @param isbn
-     * @param titulo
-     * @param autor
-     * @param editorial
-     * @param paginas
-     * @param copias
-     * @throws AccesoDatosException
-     */
+	/**
+	 * Añade un nuevo libro a la BD
+	 * 
+	 * @param isbn
+	 * @param titulo
+	 * @param autor
+	 * @param editorial
+	 * @param paginas
+	 * @param copias
+	 * @throws AccesoDatosException
+	 */
 	public void anadirLibro(Libro libro) throws AccesoDatosException {
-		
-	
+
 	}
 
 	/**
 	 * Borra un libro por ISBN
+	 * 
 	 * @param isbn
 	 * @throws AccesoDatosException
 	 */
 
 	public void borrar(Libro libro) throws AccesoDatosException {
-		
-		
+
 	}
-	
+
 	/**
 	 * Devulve los nombres de los campos de BD
+	 * 
 	 * @return
 	 * @throws AccesoDatosException
 	 */
 
 	public String[] getCamposLibro() throws AccesoDatosException {
-       
-    return null;
-	}
 
+		return null;
+	}
 
 	public void obtenerLibro(int ISBN) throws AccesoDatosException {
-		
+
 	}
 
-
-
-
 }
-
