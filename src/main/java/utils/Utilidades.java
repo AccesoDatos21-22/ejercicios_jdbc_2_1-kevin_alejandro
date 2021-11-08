@@ -113,10 +113,6 @@ public class Utilidades {
 		} else if (this.dbms.equals("h2")) {
 			conn = DriverManager
 					.getConnection("jdbc:" + this.dbms + ":" + this.dbName + "," +this.userName+"," );
-		} else if (this.dbms.equals("mysql")) {
-			conn = DriverManager
-					.getConnection("jdbc:mysql://" + this.serverName + ":" + this.portNumber + "/" + this.dbName + "," +this.userName+"," + this.password );
-			System.out.println();
 		}
 		System.out.println("Connectado a BD");
 		return conn;
