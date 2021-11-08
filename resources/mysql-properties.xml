@@ -2,9 +2,9 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
 
-	<entry key="dbms">h2</entry>
-	<entry key="driver">org.h2.Driver</entry>
-	<entry key="database_name">mem:mercado</entry>
+	<entry key="dbms">mysql</entry>
+	<entry key="driver">com.mysql.cj.jdbc.Driver</entry>
+	<entry key="database_name">mercado</entry>
 	<entry key="user_name">root</entry>
 	<entry key="password"></entry>
 	<entry key="server_name">192.168.158.144</entry>

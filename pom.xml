@@ -8,13 +8,16 @@
 	<name>ejercicios_jdbc_2_1-kevin_alejandro</name>
 
 	<dependencies>
+		<!--<dependency> <groupId>com.h2database</groupId> <artifactId>h2</artifactId> 
+			<version>1.4.200</version> <type>jar</type> </dependency> -->
 		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<version>1.4.200</version>
-			<type>jar</type>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.26</version>
 		</dependency>
 	</dependencies>
+
+
 
 	<build>
 		<plugins>
