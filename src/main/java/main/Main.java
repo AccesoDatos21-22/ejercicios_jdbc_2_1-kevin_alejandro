@@ -22,7 +22,7 @@ public class Main {
 			switch (opc) {
 			case 1:
 				System.out.println("Uno");
-				/*try {
+				try {
 					Cafes cafes = new Cafes();
 					cafes.insertar("Cafetito", 150, 1.0f, 100, 1000);
 					cafes.insertar("Cafe tacilla", 150, 2.0f, 100, 1000);
@@ -34,7 +34,7 @@ public class Main {
 
 				} catch (AccesoDatosException e) {
 					e.printStackTrace();
-				}*/
+				}/**/
 				break;
 
 			case 8:

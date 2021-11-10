@@ -12,7 +12,7 @@ import utils.Utilidades;
 
 /**
  * @descrition
- * @author Carlos
+ * @author Alex Y Kevin
  * @date 23/10/2021
  * @version 1.0
  * @license GPLv3
@@ -20,8 +20,11 @@ import utils.Utilidades;
 
 public class Cafes {
 
-	private static Connection con;
-	// Consultas a realizar en BD
+	private Connection connection;
+	private ResultSet resultSet;
+	private PreparedStatement preparedStatement;
+	private Statement statement;
+
 	private static final String SELECT_CAFES_QUERY = "select CAF_NOMBRE, PROV_ID, PRECIO, VENTAS, TOTAL from CAFES";
 	private static final String SEARCH_CAFE_QUERY = "select * from CAFES WHERE CAF_NOMBRE= ?";
 	private static final String INSERT_CAFE_QUERY = "insert into CAFES values (?,?,?,?,?)";
@@ -32,51 +35,25 @@ public class Cafes {
 
 	private static final String CREATE_TABLE_CAFES = "create table if not exists CAFES (CAF_NOMBRE varchar(32) NOT NULL, PROV_ID int NOT NULL, PRECIO numeric(10,2) NOT NULL, VENTAS integer NOT NULL, TOTAL integer NOT NULL, PRIMARY KEY (CAF_NOMBRE), FOREIGN KEY (PROV_ID) REFERENCES PROVEEDORES(PROV_ID));";
 
-	/**
-	 * Constructor: inicializa conexi√≥n
-	 * 
-	 * @throws AccesoDatosException
-	 */
-
 	public Cafes() {
-
-		Statement stmt = null;
+		connection = null;
+		resultSet = null;
+		preparedStatement = null;
+		statement = null;
 
 		try {
-			con = new Utilidades().getConnection();
-			stmt = con.createStatement();
-
-			stmt.executeUpdate(CREATE_TABLE_PROVEEDORES);
-
-			stmt.executeUpdate(CREATE_TABLE_CAFES);
-
-			stmt.executeUpdate(
-					"insert into proveedores values(49, 'PROVerior Coffee', '1 Party Place', 'Mendocino', 'CA', '95460');");
-			stmt.executeUpdate(
-					"insert into proveedores values(101, 'Acme, Inc.', '99 mercado CALLE', 'Groundsville', 'CA', '95199');");
-			stmt.executeUpdate(
-					"insert into proveedores values(150, 'The High Ground', '100 Coffee Lane', 'Meadows', 'CA', '93966');");
+			connection = new Utilidades().getConnection();
 
 		} catch (IOException e) {
 			// Error al leer propiedades
-			// En una aplicaci√≥n real, escribo en el log y delego
+			// En una aplicaciÛn real, escribo en el log y delego
 			// System.err.println(e.getMessage());
 
 		} catch (SQLException sqle) {
-			// En una aplicaci√≥n real, escribo en el log y delego
+			// En una aplicaciÛn real, escribo en el log y delego
 			// Utilidades.printSQLException(sqle);
 
 		} finally {
-			try {
-				// Liberamos todos los recursos pase lo que pase
-				if (stmt != null) {
-					stmt.close();
-				}
-			} catch (SQLException sqle) {
-				// En una aplicaci√≥n real, escribo en el log, no delego porque
-				// es error al liberar recursos
-				Utilidades.printSQLException(sqle);
-			}
 		}
 	}
 
@@ -88,48 +65,31 @@ public class Cafes {
 	 */
 	public void verTabla() throws AccesoDatosException {
 
-		/* Sentencia sql */
-		Statement stmt = null;
-		/* Conjunto de Resultados a obtener de la sentencia sql */
-		ResultSet rs = null;
 		try {
-			// Creaci√≥n de la sentencia
-			stmt = con.createStatement();
-			// Ejecuci√≥n de la consulta y obtenci√≥n de resultados en un
+			// CreaciÛn de la sentencia
+			statement = connection.createStatement();
+			// EjecuciÛn de la consulta y obtenciÛn de resultados en un
 			// ResultSet
-			rs = stmt.executeQuery(SELECT_CAFES_QUERY);
+			resultSet = statement.executeQuery(SELECT_CAFES_QUERY);
 
-			// Recuperaci√≥n de los datos del ResultSet
-			while (rs.next()) {
-				String coffeeName = rs.getString("CAF_NOMBRE");
-				int supplierID = rs.getInt("PROV_ID");
-				float PRECIO = rs.getFloat("PRECIO");
-				int VENTAS = rs.getInt("VENTAS");
-				int total = rs.getInt("TOTAL");
+			// RecuperaciÛn de los datos del ResultSet
+			while (resultSet.next()) {
+				String coffeeName = resultSet.getString("CAF_NOMBRE");
+				int supplierID = resultSet.getInt("PROV_ID");
+				float PRECIO = resultSet.getFloat("PRECIO");
+				int VENTAS = resultSet.getInt("VENTAS");
+				int total = resultSet.getInt("TOTAL");
 				System.out.println(coffeeName + ", " + supplierID + ", " + PRECIO + ", " + VENTAS + ", " + total);
 			}
 
 		} catch (SQLException sqle) {
-			// En una aplicaci√≥n real, escribo en el log y delego
+			// En una aplicaciÛn real, escribo en el log y delego
 			// System.err.println(sqle.getMessage());
 			Utilidades.printSQLException(sqle);
-			throw new AccesoDatosException("Ocurri√≥ un error al acceder a los datos");
+			throw new AccesoDatosException("OcurriÛ un error al acceder a los datos");
 		} finally {
-			try {
-				// Liberamos todos los recursos pase lo que pase
-				if (rs != null) {
-					rs.close();
-				}
-				if (stmt != null) {
-					stmt.close();
-				}
-			} catch (SQLException sqle) {
-				// En una aplicaci√≥n real, escribo en el log, no delego porque
-				// es error al liberar recursos
-				Utilidades.printSQLException(sqle);
-			}
+			liberar();
 		}
-
 	}
 
 	/**
@@ -138,49 +98,31 @@ public class Cafes {
 	 * @param nombre
 	 */
 	public void buscar(String nombre) throws AccesoDatosException {
-
-		/* Sentencia sql */
-		PreparedStatement stmt = null;
-		/* Conjunto de Resultados a obtener de la sentencia sql */
-		ResultSet rs = null;
 		try {
-			// Creaci√≥n de la sentencia
-			stmt = con.prepareStatement(SEARCH_CAFE_QUERY);
-			stmt.setString(1, nombre);
-			// Ejecuci√≥n de la consulta y obtenci√≥n de resultados en un
+			// CreaciÛn de la sentencia
+			statement = connection.prepareStatement(SEARCH_CAFE_QUERY);
+			preparedStatement.setString(1, nombre);
+			// EjecuciÛn de la consulta y obtenciÛn de resultados en un
 			// ResultSet
-			rs = stmt.executeQuery();
+			resultSet = preparedStatement.executeQuery();
 
-			// Recuperaci√≥n de los datos del ResultSet
-			if (rs.next()) {
-				String coffeeName = rs.getString("CAF_NOMBRE");
-				int supplierID = rs.getInt("PROV_ID");
-				float PRECIO = rs.getFloat("PRECIO");
-				int VENTAS = rs.getInt("VENTAS");
-				int total = rs.getInt("TOTAL");
+			// RecuperaciÛn de los datos del ResultSet
+			if (resultSet.next()) {
+				String coffeeName = resultSet.getString("CAF_NOMBRE");
+				int supplierID = resultSet.getInt("PROV_ID");
+				float PRECIO = resultSet.getFloat("PRECIO");
+				int VENTAS = resultSet.getInt("VENTAS");
+				int total = resultSet.getInt("TOTAL");
 				System.out.println(coffeeName + ", " + supplierID + ", " + PRECIO + ", " + VENTAS + ", " + total);
 			}
 
 		} catch (SQLException sqle) {
-			// En una aplicaci√≥n real, escribo en el log y delego
+			// En una aplicaciÛn real, escribo en el log y delego
 			Utilidades.printSQLException(sqle);
-			throw new AccesoDatosException("Ocurri√≥ un error al acceder a los datos");
+			throw new AccesoDatosException("OcurriÛ un error al acceder a los datos");
 		} finally {
-			try {
-				// Liberamos todos los recursos pase lo que pase
-				if (rs != null) {
-					rs.close();
-				}
-				if (stmt != null) {
-					stmt.close();
-				}
-			} catch (SQLException sqle) {
-				// En una aplicaci√≥n real, escribo en el log, no delego porque
-				// es error al liberar recursos
-				Utilidades.printSQLException(sqle);
-			}
+			liberar();
 		}
-
 	}
 
 	/**
@@ -194,40 +136,25 @@ public class Cafes {
 	 * @return
 	 */
 	public void insertar(String nombre, int provid, float precio, int ventas, int total) throws AccesoDatosException {
-
-		/* Sentencia sql */
-		PreparedStatement stmt = null;
-
 		try {
 
-			stmt = con.prepareStatement(INSERT_CAFE_QUERY);
-			stmt.setString(1, nombre);
-			stmt.setInt(2, provid);
-			stmt.setFloat(3, precio);
-			stmt.setInt(4, ventas);
-			stmt.setInt(5, total);
-			// Ejecuci√≥n de la inserci√≥n
-			stmt.executeUpdate();
+			statement = connection.prepareStatement(INSERT_CAFE_QUERY);
+			preparedStatement.setString(1, nombre);
+			preparedStatement.setInt(2, provid);
+			preparedStatement.setFloat(3, precio);
+			preparedStatement.setInt(4, ventas);
+			preparedStatement.setInt(5, total);
+			// EjecuciÛn de la inserciÛn
+			preparedStatement.executeUpdate();
 
 		} catch (SQLException sqle) {
-			// En una aplicaci√≥n real, escribo en el log y delego
+			// En una aplicaciÛn real, escribo en el log y delego
 			Utilidades.printSQLException(sqle);
-			throw new AccesoDatosException("Ocurri√≥ un error al acceder a los datos");
+			throw new AccesoDatosException("OcurriÛ un error al acceder a los datos");
 
 		} finally {
-			try {
-				// Liberamos todos los recursos pase lo que pase
-				if (stmt != null) {
-					stmt.close();
-				}
-
-			} catch (SQLException sqle) {
-				// En una aplicaci√≥n real, escribo en el log, no delego porque
-				// es error al liberar recursos
-				Utilidades.printSQLException(sqle);
-			}
+			liberar();
 		}
-
 	}
 
 	/**
@@ -237,38 +164,22 @@ public class Cafes {
 	 * @return
 	 */
 	public void borrar(String nombre) throws AccesoDatosException {
-
-		/* Sentencia sql */
-		PreparedStatement stmt = null;
-
 		try {
-			// Creaci√≥n de la sentencia
-			stmt = con.prepareStatement(DELETE_CAFE_QUERY);
-			stmt.setString(1, nombre);
-			// Ejecuci√≥n del borrado
-			stmt.executeUpdate();
-			System.out.println("caf√© " + nombre + " ha sido borrado.");
+			// CreaciÛn de la sentencia
+			preparedStatement = connection.prepareStatement(DELETE_CAFE_QUERY);
+			preparedStatement.setString(1, nombre);
+			// EjecuciÛn del borrado
+			preparedStatement.executeUpdate();
+			System.out.println("cafÈ " + nombre + " ha sido borrado.");
 
 		} catch (SQLException sqle) {
-			// En una aplicaci√≥n real, escribo en el log y delego
+			// En una aplicaciÛn real, escribo en el log y delego
 			Utilidades.printSQLException(sqle);
-			throw new AccesoDatosException("Ocurri√≥ un error al acceder a los datos");
+			throw new AccesoDatosException("OcurriÛ un error al acceder a los datos");
 
 		} finally {
-			try {
-				// Liberamos todos los recursos pase lo que pase
-				if (stmt != null) {
-					stmt.close();
-				}
-
-			} catch (SQLException sqle) {
-				// En una aplicaci√≥n real, escribo en el log, no delego porque
-				// es error al liberar recursos
-				Utilidades.printSQLException(sqle);
-			}
-
+			liberar();
 		}
-
 	}
 
 	/**
@@ -277,61 +188,58 @@ public class Cafes {
 	 * @param nombre
 	 */
 	public void cafesPorProveedor(int provid) throws AccesoDatosException {
-
-		/* Sentencia sql */
-		PreparedStatement stmt = null;
-		/* Conjunto de Resultados a obtener de la sentencia sql */
-		ResultSet rs = null;
 		try {
-			con = new Utilidades().getConnection();
-			// Creaci√≥n de la sentencia
-			stmt = con.prepareStatement(SEARCH_CAFES_PROVEEDOR);
-			stmt.setInt(1, provid);
-			// Ejecuci√≥n de la consulta y obtenci√≥n de resultados en un
+			// CreaciÛn de la sentencia
+			preparedStatement = connection.prepareStatement(SEARCH_CAFES_PROVEEDOR);
+			preparedStatement.setInt(1, provid);
+			// EjecuciÛn de la consulta y obtenciÛn de resultados en un
 			// ResultSet
-			rs = stmt.executeQuery();
+			resultSet = preparedStatement.executeQuery();
 
-			// Recuperaci√≥n de los datos del ResultSet
-			while (rs.next()) {
-				String coffeeName = rs.getString("CAF_NOMBRE");
-				int supplierID = rs.getInt("PROV_ID");
-				float PRECIO = rs.getFloat("PRECIO");
-				int VENTAS = rs.getInt("VENTAS");
-				int total = rs.getInt("TOTAL");
-				String provName = rs.getString("PROV_NOMBRE");
-				String calle = rs.getString("CALLE");
-				String ciudad = rs.getString("CIUDAD");
-				String pais = rs.getString("PAIS");
-				int cp = rs.getInt("CP");
+			// RecuperaciÛn de los datos del ResultSet
+			while (resultSet.next()) {
+				String coffeeName = resultSet.getString("CAF_NOMBRE");
+				int supplierID = resultSet.getInt("PROV_ID");
+				float PRECIO = resultSet.getFloat("PRECIO");
+				int VENTAS = resultSet.getInt("VENTAS");
+				int total = resultSet.getInt("TOTAL");
+				String provName = resultSet.getString("PROV_NOMBRE");
+				String calle = resultSet.getString("CALLE");
+				String ciudad = resultSet.getString("CIUDAD");
+				String pais = resultSet.getString("PAIS");
+				int cp = resultSet.getInt("CP");
 				System.out.println(coffeeName + ", " + supplierID + ", " + PRECIO + ", " + VENTAS + ", " + total
 						+ ",Y el proveedor es:" + provName + "," + calle + "," + ciudad + "," + pais + "," + cp);
 			}
 
-		} catch (IOException e) {
-			// Error al leer propiedades
-			// En una aplicaci√≥n real, escribo en el log y delego
-			System.err.println(e.getMessage());
-			throw new AccesoDatosException("Ocurri√≥ un error al acceder a los datos");
 		} catch (SQLException sqle) {
-			// En una aplicaci√≥n real, escribo en el log y delego
+			// En una aplicaciÛn real, escribo en el log y delego
 			Utilidades.printSQLException(sqle);
-			throw new AccesoDatosException("Ocurri√≥ un error al acceder a los datos");
+			throw new AccesoDatosException("OcurriÛ un error al acceder a los datos");
 		} finally {
-			try {
-				// Liberamos todos los recursos pase lo que pase
-				if (rs != null) {
-					rs.close();
-				}
-				if (stmt != null) {
-					stmt.close();
-				}
-
-			} catch (SQLException sqle) {
-				// En una aplicaci√≥n real, escribo en el log, no delego porque
-				// es error al liberar recursos
-				Utilidades.printSQLException(sqle);
-			}
+			liberar();
 		}
 
+	}
+
+	public void cerrarConexion() {
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void liberar() {
+		try {
+			connection.close();
+			resultSet.close();
+			preparedStatement.close();
+			statement.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
