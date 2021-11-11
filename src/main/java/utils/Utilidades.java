@@ -114,7 +114,7 @@ public class Utilidades {
 			conn = DriverManager
 					.getConnection("jdbc:" + this.dbms + ":" + this.dbName + "," +this.userName+"," );
 		}
-		System.out.println("Connectado a BD");
+		//System.out.println("Connectado a BD");
 		return conn;
 	}
 

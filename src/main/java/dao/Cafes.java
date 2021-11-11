@@ -1,11 +1,13 @@
 package dao;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.InvalidPropertiesFormatException;
 
 import modelo.AccesoDatosException;
 import utils.Utilidades;
@@ -42,18 +44,26 @@ public class Cafes {
 		statement = null;
 
 		try {
-			connection = new Utilidades().getConnection();
+			conectar();
+			statement = connection.createStatement();
 
-		} catch (IOException e) {
-			// Error al leer propiedades
-			// En una aplicación real, escribo en el log y delego
-			// System.err.println(e.getMessage());
+			statement.executeUpdate(CREATE_TABLE_PROVEEDORES);
 
+			statement.executeUpdate(CREATE_TABLE_CAFES);
+
+			statement.executeUpdate(
+					"insert into proveedores values(49, 'PROVerior Coffee', '1 Party Place', 'Mendocino', 'CA', '95460');");
+			statement.executeUpdate(
+					"insert into proveedores values(101, 'Acme, Inc.', '99 mercado CALLE', 'Groundsville', 'CA', '95199');");
+			statement.executeUpdate(
+					"insert into proveedores values(150, 'The High Ground', '100 Coffee Lane', 'Meadows', 'CA', '93966');");
 		} catch (SQLException sqle) {
 			// En una aplicación real, escribo en el log y delego
 			// Utilidades.printSQLException(sqle);
 
 		} finally {
+			liberar();
+			cerrarConexion();
 		}
 	}
 
@@ -66,6 +76,7 @@ public class Cafes {
 	public void verTabla() throws AccesoDatosException {
 
 		try {
+			conectar();
 			// Creación de la sentencia
 			statement = connection.createStatement();
 			// Ejecución de la consulta y obtención de resultados en un
@@ -89,6 +100,7 @@ public class Cafes {
 			throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
 		} finally {
 			liberar();
+			cerrarConexion();
 		}
 	}
 
@@ -99,6 +111,7 @@ public class Cafes {
 	 */
 	public void buscar(String nombre) throws AccesoDatosException {
 		try {
+			conectar();
 			// Creación de la sentencia
 			statement = connection.prepareStatement(SEARCH_CAFE_QUERY);
 			preparedStatement.setString(1, nombre);
@@ -122,6 +135,7 @@ public class Cafes {
 			throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
 		} finally {
 			liberar();
+			cerrarConexion();
 		}
 	}
 
@@ -137,8 +151,8 @@ public class Cafes {
 	 */
 	public void insertar(String nombre, int provid, float precio, int ventas, int total) throws AccesoDatosException {
 		try {
-
-			statement = connection.prepareStatement(INSERT_CAFE_QUERY);
+			conectar();
+			preparedStatement = connection.prepareStatement(INSERT_CAFE_QUERY);
 			preparedStatement.setString(1, nombre);
 			preparedStatement.setInt(2, provid);
 			preparedStatement.setFloat(3, precio);
@@ -146,14 +160,13 @@ public class Cafes {
 			preparedStatement.setInt(5, total);
 			// Ejecución de la inserción
 			preparedStatement.executeUpdate();
-
 		} catch (SQLException sqle) {
 			// En una aplicación real, escribo en el log y delego
 			Utilidades.printSQLException(sqle);
 			throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
-
 		} finally {
 			liberar();
+			cerrarConexion();
 		}
 	}
 
@@ -165,6 +178,7 @@ public class Cafes {
 	 */
 	public void borrar(String nombre) throws AccesoDatosException {
 		try {
+			conectar();
 			// Creación de la sentencia
 			preparedStatement = connection.prepareStatement(DELETE_CAFE_QUERY);
 			preparedStatement.setString(1, nombre);
@@ -179,6 +193,7 @@ public class Cafes {
 
 		} finally {
 			liberar();
+			cerrarConexion();
 		}
 	}
 
@@ -189,6 +204,7 @@ public class Cafes {
 	 */
 	public void cafesPorProveedor(int provid) throws AccesoDatosException {
 		try {
+			conectar();
 			// Creación de la sentencia
 			preparedStatement = connection.prepareStatement(SEARCH_CAFES_PROVEEDOR);
 			preparedStatement.setInt(1, provid);
@@ -209,7 +225,7 @@ public class Cafes {
 				String pais = resultSet.getString("PAIS");
 				int cp = resultSet.getInt("CP");
 				System.out.println(coffeeName + ", " + supplierID + ", " + PRECIO + ", " + VENTAS + ", " + total
-						+ ",Y el proveedor es:" + provName + "," + calle + "," + ciudad + "," + pais + "," + cp);
+						+ "\n y el proveedor es: " + provName + "," + calle + "," + ciudad + "," + pais + "," + cp);
 			}
 
 		} catch (SQLException sqle) {
@@ -218,13 +234,35 @@ public class Cafes {
 			throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
 		} finally {
 			liberar();
+			cerrarConexion();
 		}
 
 	}
 
+	public void conectar() {
+		try {
+			connection = new Utilidades().getConnection();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidPropertiesFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 	public void cerrarConexion() {
 		try {
-			connection.close();
+			if (connection != null) {
+				connection.close();
+			}
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -232,11 +270,20 @@ public class Cafes {
 	}
 
 	public void liberar() {
+
 		try {
-			connection.close();
-			resultSet.close();
-			preparedStatement.close();
-			statement.close();
+			if (resultSet != null) {
+				resultSet.close();
+			}
+
+			if (preparedStatement != null) {
+				preparedStatement.close();
+			}
+
+			if (statement != null) {
+				statement.close();
+			}
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
