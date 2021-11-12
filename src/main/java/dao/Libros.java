@@ -1,11 +1,13 @@
 package dao;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.InvalidPropertiesFormatException;
 import java.util.List;
 
 import modelo.AccesoDatosException;
@@ -24,6 +26,7 @@ public class Libros {
 
 	// Consultas a realizar en BD
 	private static final String CREATE_TABLE_LIBROS = "create table if not exists LIBROS (isbn integer not null, titulo varchar(50) not null, autor varchar(50) not null, editorial varchar(25) not null, paginas integer not null, copias integer not null, constraint isbn_pk primary key (isbn));";
+	private static final String INSERT_LIBRO_QUERY = "insert into LIBROS values (?,?,?,?,?,?)";
 
 	private Connection connection;
 	private Statement statement;
@@ -140,6 +143,26 @@ public class Libros {
 	 * @throws AccesoDatosException
 	 */
 	public void anadirLibro(Libro libro) throws AccesoDatosException {
+		try {
+			conectar();
+			preparedStatement = connection.prepareStatement(INSERT_LIBRO_QUERY);
+			preparedStatement.setInt(1, libro.getISBN());
+			preparedStatement.setString(2, libro.getTitulo());
+			preparedStatement.setString(3, libro.getAutor());
+			preparedStatement.setString(4, libro.getEditorial());
+			preparedStatement.setInt(5, libro.getPaginas());
+			preparedStatement.setInt(6, libro.getCopias());
+			// Ejecución de la inserción
+			preparedStatement.executeUpdate();
+			System.out.println("Libro añadido correctamente.");
+		} catch (SQLException sqle) {
+			// En una aplicación real, escribo en el log y delego
+			Utilidades.printSQLException(sqle);
+			throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
+		} finally {
+			liberar();
+			cerrar();
+		}
 
 	}
 
@@ -151,7 +174,6 @@ public class Libros {
 	 */
 
 	public void borrar(Libro libro) throws AccesoDatosException {
-
 	}
 
 	/**
@@ -168,6 +190,24 @@ public class Libros {
 
 	public void obtenerLibro(int ISBN) throws AccesoDatosException {
 
+	}
+
+	public void conectar() {
+		try {
+			connection = new Utilidades().getConnection();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidPropertiesFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
