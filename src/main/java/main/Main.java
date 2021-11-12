@@ -18,6 +18,7 @@ public class Main {
 			System.out.println("\n ***** Seleccione una Opción *****");
 			System.out.println("2. Buscar cafés por Proveedor");
 			System.out.println("3. Conectar con la BD de libros, crear la tabla de libros e insertar libros.");
+			System.out.println("6. Ver catálogo de libros");
 			System.out.println("8. Salir.");
 
 			opc = sn.nextInt();
@@ -53,6 +54,35 @@ public class Main {
 				Libro libro4 = new Libro(1725, "Java", "Juan Garcia", "Programación", 245, 9);
 				libros.anadirLibro(libro4);
 
+				break;
+
+			case 6:
+				Libros libros6 = new Libros();
+				for (Libro libro : libros6.verCatalogo()) {
+					System.out.println(libro.toString());
+				}
+
+				Libro libroEditado = libros6.verCatalogo().get(2);
+				libroEditado.setCopias(5);
+				libros6.actualizarCopias(libroEditado);
+				
+
+				for (Libro libro : libros6.verCatalogo()) {
+					System.out.println(libro.toString());
+				}
+				
+				Libro libroBorrado = libros6.verCatalogo().get(0);
+				libros6.borrar(libroBorrado);
+				
+				for (Libro libro : libros6.verCatalogo()) {
+					System.out.println(libro.toString());
+				}
+				
+				for (String campo : libros6.getCamposLibro()) {
+					System.out.println("\nCampo: " + campo);
+				}
+				
+				libros6.obtenerLibro(1725);
 				break;
 
 			case 8:

@@ -2,17 +2,17 @@ package modelo;
 
 public class Libro {
 	private int ISBN;
-	private String titulo ;				
+	private String titulo;
 	private String autor;
-	private String editorial ;
-	private int paginas ;
-	private int copias ;
-	
+	private String editorial;
+	private int paginas;
+	private int copias;
+
 	public Libro() {
-		
+
 	}
-	
-	public Libro(int ISBN,String titulo, String autor, String editorial, int paginas, int copias) {
+
+	public Libro(int ISBN, String titulo, String autor, String editorial, int paginas, int copias) {
 		this.ISBN = ISBN;
 		this.titulo = titulo;
 		this.autor = autor;
@@ -20,8 +20,6 @@ public class Libro {
 		this.paginas = paginas;
 		this.copias = copias;
 	}
-	
-	
 
 	public int getISBN() {
 		return ISBN;
@@ -70,8 +68,10 @@ public class Libro {
 	public void setCopias(int copias) {
 		this.copias = copias;
 	}
-	
-	
-	
-	
+
+	@Override
+	public String toString() {
+		return "\nLibro: ISBN = " + ISBN + ", titulo = " + titulo + ", autor = " + autor + ", editorial = " + editorial
+				+ ", paginas = " + paginas + ", copias = " + copias + ".";
+	}
 }
