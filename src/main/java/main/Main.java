@@ -3,6 +3,7 @@ package main;
 import java.util.Scanner;
 
 import dao.Cafes;
+import dao.Libros;
 import modelo.AccesoDatosException;
 
 public class Main {
@@ -15,26 +16,29 @@ public class Main {
 		do {
 			System.out.println("\n ***** Seleccione una Opción *****");
 			System.out.println("1. Buscar cafés por Proveedor");
+			System.out.println("3. Conectar con la BD de libros.");
 			System.out.println("8. Salir.");
 
 			opc = sn.nextInt();
 
 			switch (opc) {
 			case 1:
-				System.out.println("Uno");
 				try {
 					Cafes cafes = new Cafes();
-					//cafes.insertar("Cafetito", 150, 1.0f, 100, 1000);
-					//cafes.insertar("Cafe tacilla", 150, 2.0f, 100, 1000);
-					//cafes.verTabla();
+					cafes.insertar("Cafetito", 150, 1.0f, 100, 1000);
+					cafes.insertar("Cafe tacilla", 150, 2.0f, 100, 1000);
+					cafes.verTabla();
 					// cafes.buscar("tacilla");
-					cafes.cafesPorProveedor(150);
+					// cafes.cafesPorProveedor(150);
 					// cafes.borrar("Cafe tacilla");
 					// cafes.verTabla();
 
 				} catch (AccesoDatosException e) {
 					e.printStackTrace();
-				}/**/
+				} /**/
+				break;
+			case 3:
+				Libros libros = new Libros();
 				break;
 
 			case 8:

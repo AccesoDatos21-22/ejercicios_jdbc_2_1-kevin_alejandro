@@ -53,6 +53,7 @@ public class Libros {
 			Utilidades.printSQLException(sqle);
 			throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
 		}
+		System.out.println("Conectado a la BD libros.");
 	}
 
 	/**
