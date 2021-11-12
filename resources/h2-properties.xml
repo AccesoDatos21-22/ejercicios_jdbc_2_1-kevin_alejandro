@@ -4,7 +4,7 @@
 
 	<entry key="dbms">h2</entry>
 	<entry key="driver">org.h2.Driver</entry>
-	<entry key="database_name">mem:./resources/mercado.sql</entry>
+	<entry key="database_name">./db/mercado.db</entry>
 	<entry key="user_name">root</entry>
 	<entry key="password">root</entry>
 	<entry key="server_name">localhost</entry>
