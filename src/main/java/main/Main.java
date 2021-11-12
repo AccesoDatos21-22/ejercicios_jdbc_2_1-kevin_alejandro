@@ -16,6 +16,7 @@ public class Main {
 
 		do {
 			System.out.println("\n ***** Seleccione una Opción *****");
+			System.out.println("\n ***** Desde la opción 3 utilice el sqlite que esta en Utilidades.java *****");
 			System.out.println("2. Buscar cafés por Proveedor");
 			System.out.println("3. Conectar con la BD de libros, crear la tabla de libros e insertar libros.");
 			System.out.println("8. Salir.");
