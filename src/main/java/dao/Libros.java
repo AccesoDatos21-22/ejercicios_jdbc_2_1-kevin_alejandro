@@ -1,11 +1,13 @@
 package dao;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.InvalidPropertiesFormatException;
 import java.util.List;
 
 import modelo.AccesoDatosException;
@@ -14,7 +16,7 @@ import utils.Utilidades;
 
 /**
  * @descrition
- * @author Carlos
+ * @author Alejandro y Kevin
  * @date 23/10/2021
  * @version 1.0
  * @license GPLv3
@@ -23,11 +25,13 @@ import utils.Utilidades;
 public class Libros {
 
 	// Consultas a realizar en BD
+	private static final String CREATE_TABLE_LIBROS = "create table if not exists LIBROS (isbn integer not null, titulo varchar(50) not null, autor varchar(50) not null, editorial varchar(25) not null, paginas integer not null, copias integer not null, constraint isbn_pk primary key (isbn));";
+	private static final String INSERT_LIBRO_QUERY = "insert into LIBROS values (?,?,?,?,?,?)";
 
-	private Connection con;
-	private Statement stmt;
-	private ResultSet rs;
-	private PreparedStatement pstmt;
+	private Connection connection;
+	private Statement statement;
+	private ResultSet resultSet;
+	private PreparedStatement preparedStatement;
 
 	/**
 	 * Constructor: inicializa conexi√≥n
@@ -38,10 +42,13 @@ public class Libros {
 	public Libros() throws AccesoDatosException {
 		try {
 			// Obtenemos la conexi√≥n
-			this.con = new Utilidades().getConnection();
-			this.stmt = null;
-			this.rs = null;
-			this.pstmt = null;
+			this.connection = new Utilidades().getConnection();
+			this.statement = null;
+			this.resultSet = null;
+			this.preparedStatement = null;
+
+			statement = connection.createStatement();
+			statement.executeUpdate(CREATE_TABLE_LIBROS);
 		} catch (IOException e) {
 			// Error al leer propiedades
 			// En una aplicaci√≥n real, escribo en el log y delego
@@ -52,7 +59,12 @@ public class Libros {
 			// System.err.println(sqle.getMessage());
 			Utilidades.printSQLException(sqle);
 			throw new AccesoDatosException("Ocurri√≥ un error al acceder a los datos");
+		} finally {
+			liberar();
+			cerrar();
 		}
+		System.out.println("Conectado a la BD libros.");
+		System.out.println("Tabla libros creada.");
 	}
 
 	/**
@@ -62,8 +74,8 @@ public class Libros {
 	 */
 	public void cerrar() {
 
-		if (con != null) {
-			Utilidades.closeConnection(con);
+		if (connection != null) {
+			Utilidades.closeConnection(connection);
 		}
 
 	}
@@ -78,14 +90,14 @@ public class Libros {
 			// Liberamos todos los recursos pase lo que pase
 			// Al cerrar un stmt se cierran los resultset asociados. Pod√≠amos omitir el
 			// primer if. Lo dejamos por claridad.
-			if (rs != null) {
-				rs.close();
+			if (resultSet != null) {
+				resultSet.close();
 			}
-			if (stmt != null) {
-				stmt.close();
+			if (statement != null) {
+				statement.close();
 			}
-			if (pstmt != null) {
-				pstmt.close();
+			if (preparedStatement != null) {
+				preparedStatement.close();
 			}
 		} catch (SQLException sqle) {
 			// En una aplicaci√≥n real, escribo en el log, no delego porque
@@ -131,6 +143,26 @@ public class Libros {
 	 * @throws AccesoDatosException
 	 */
 	public void anadirLibro(Libro libro) throws AccesoDatosException {
+		try {
+			conectar();
+			preparedStatement = connection.prepareStatement(INSERT_LIBRO_QUERY);
+			preparedStatement.setInt(1, libro.getISBN());
+			preparedStatement.setString(2, libro.getTitulo());
+			preparedStatement.setString(3, libro.getAutor());
+			preparedStatement.setString(4, libro.getEditorial());
+			preparedStatement.setInt(5, libro.getPaginas());
+			preparedStatement.setInt(6, libro.getCopias());
+			// EjecuciÛn de la inserciÛn
+			preparedStatement.executeUpdate();
+			System.out.println("Libro aÒadido correctamente.");
+		} catch (SQLException sqle) {
+			// En una aplicaciÛn real, escribo en el log y delego
+			Utilidades.printSQLException(sqle);
+			throw new AccesoDatosException("OcurriÛ un error al acceder a los datos");
+		} finally {
+			liberar();
+			cerrar();
+		}
 
 	}
 
@@ -142,7 +174,6 @@ public class Libros {
 	 */
 
 	public void borrar(Libro libro) throws AccesoDatosException {
-
 	}
 
 	/**
@@ -159,6 +190,24 @@ public class Libros {
 
 	public void obtenerLibro(int ISBN) throws AccesoDatosException {
 
+	}
+
+	public void conectar() {
+		try {
+			connection = new Utilidades().getConnection();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidPropertiesFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
