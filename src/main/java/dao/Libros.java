@@ -14,7 +14,7 @@ import utils.Utilidades;
 
 /**
  * @descrition
- * @author Carlos
+ * @author Alejandro y Kevin
  * @date 23/10/2021
  * @version 1.0
  * @license GPLv3
@@ -23,11 +23,12 @@ import utils.Utilidades;
 public class Libros {
 
 	// Consultas a realizar en BD
+	private static final String CREATE_TABLE_LIBROS = "create table if not exists LIBROS (isbn integer not null, titulo varchar(50) not null, autor varchar(50) not null, editorial varchar(25) not null, paginas integer not null, copias integer not null, constraint isbn_pk primary key (isbn));";
 
-	private Connection con;
-	private Statement stmt;
-	private ResultSet rs;
-	private PreparedStatement pstmt;
+	private Connection connection;
+	private Statement statement;
+	private ResultSet resultSet;
+	private PreparedStatement preparedStatement;
 
 	/**
 	 * Constructor: inicializa conexión
@@ -38,10 +39,13 @@ public class Libros {
 	public Libros() throws AccesoDatosException {
 		try {
 			// Obtenemos la conexión
-			this.con = new Utilidades().getConnection();
-			this.stmt = null;
-			this.rs = null;
-			this.pstmt = null;
+			this.connection = new Utilidades().getConnection();
+			this.statement = null;
+			this.resultSet = null;
+			this.preparedStatement = null;
+
+			statement = connection.createStatement();
+			statement.executeUpdate(CREATE_TABLE_LIBROS);
 		} catch (IOException e) {
 			// Error al leer propiedades
 			// En una aplicación real, escribo en el log y delego
@@ -52,8 +56,12 @@ public class Libros {
 			// System.err.println(sqle.getMessage());
 			Utilidades.printSQLException(sqle);
 			throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
+		} finally {
+			liberar();
+			cerrar();
 		}
 		System.out.println("Conectado a la BD libros.");
+		System.out.println("Tabla libros creada.");
 	}
 
 	/**
@@ -63,8 +71,8 @@ public class Libros {
 	 */
 	public void cerrar() {
 
-		if (con != null) {
-			Utilidades.closeConnection(con);
+		if (connection != null) {
+			Utilidades.closeConnection(connection);
 		}
 
 	}
@@ -79,14 +87,14 @@ public class Libros {
 			// Liberamos todos los recursos pase lo que pase
 			// Al cerrar un stmt se cierran los resultset asociados. Podíamos omitir el
 			// primer if. Lo dejamos por claridad.
-			if (rs != null) {
-				rs.close();
+			if (resultSet != null) {
+				resultSet.close();
 			}
-			if (stmt != null) {
-				stmt.close();
+			if (statement != null) {
+				statement.close();
 			}
-			if (pstmt != null) {
-				pstmt.close();
+			if (preparedStatement != null) {
+				preparedStatement.close();
 			}
 		} catch (SQLException sqle) {
 			// En una aplicación real, escribo en el log, no delego porque

@@ -15,14 +15,14 @@ public class Main {
 
 		do {
 			System.out.println("\n ***** Seleccione una Opción *****");
-			System.out.println("1. Buscar cafés por Proveedor");
-			System.out.println("3. Conectar con la BD de libros.");
+			System.out.println("2. Buscar cafés por Proveedor");
+			System.out.println("3. Conectar con la BD de libros y crear la tabla de libros.");
 			System.out.println("8. Salir.");
 
 			opc = sn.nextInt();
 
 			switch (opc) {
-			case 1:
+			case 2:
 				try {
 					Cafes cafes = new Cafes();
 					cafes.insertar("Cafetito", 150, 1.0f, 100, 1000);
