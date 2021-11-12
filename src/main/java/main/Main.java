@@ -18,6 +18,7 @@ public class Main {
 			System.out.println("\n ***** Seleccione una Opción *****");
 			System.out.println("2. Buscar cafés por Proveedor");
 			System.out.println("3. Conectar con la BD de libros, crear la tabla de libros e insertar libros.");
+			System.out.println("7. ver campos libro");
 			System.out.println("8. Salir.");
 
 			opc = sn.nextInt();
@@ -53,6 +54,13 @@ public class Main {
 				Libro libro4 = new Libro(1725, "Java", "Juan Garcia", "Programación", 245, 9);
 				libros.anadirLibro(libro4);
 
+				break;
+			case 7:
+				Libros libros7 = new Libros();
+
+				for (String campo : libros7.getCamposLibro()) {
+					System.out.println("\n Campo: " + campo);
+				}
 				break;
 
 			case 8:

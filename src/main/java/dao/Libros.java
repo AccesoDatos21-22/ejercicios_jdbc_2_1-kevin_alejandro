@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.InvalidPropertiesFormatException;
@@ -27,6 +28,7 @@ public class Libros {
 	// Consultas a realizar en BD
 	private static final String CREATE_TABLE_LIBROS = "create table if not exists LIBROS (isbn integer not null, titulo varchar(50) not null, autor varchar(50) not null, editorial varchar(25) not null, paginas integer not null, copias integer not null, constraint isbn_pk primary key (isbn));";
 	private static final String INSERT_LIBRO_QUERY = "insert into LIBROS values (?,?,?,?,?,?)";
+	private static final String SELECT_CAMPOS_QUERY = "SELECT * FROM LIBROS LIMIT 1";
 
 	private Connection connection;
 	private Statement statement;
@@ -185,7 +187,31 @@ public class Libros {
 
 	public String[] getCamposLibro() throws AccesoDatosException {
 
-		return null;
+		ResultSetMetaData rsmd = null;
+		String[] campos = null;
+		try {
+			conectar();
+			preparedStatement = connection.prepareStatement(SELECT_CAMPOS_QUERY);
+
+			resultSet = preparedStatement.executeQuery();
+			rsmd = resultSet.getMetaData();
+			int columns = rsmd.getColumnCount();
+			campos = new String[columns];
+			for (int i = 0; i < columns; i++) {
+				// Los indices de las columnas comienzan en 1
+				campos[i] = rsmd.getColumnLabel(i + 1);
+			}
+			return campos;
+
+		} catch (SQLException sqle) {
+			// En una aplicación real, escribo en el log y delego
+			Utilidades.printSQLException(sqle);
+			throw new AccesoDatosException("Ocurrió un error al acceder a los datos");
+
+		} finally {
+			liberar();
+		}
+
 	}
 
 	public void obtenerLibro(int ISBN) throws AccesoDatosException {
